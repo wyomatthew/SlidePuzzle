@@ -1,4 +1,5 @@
 from Piece import Piece
+from typing import Optional
 
 default_pieces = {
     0: Piece((0, 1), (2, 2)),
@@ -16,21 +17,21 @@ default_pieces = {
 class Board(object):
     def __init__(self, dim: tuple[int, int] = (5, 4), pieces: dict[int, Piece] = default_pieces):
         self.dim = dim
-        self.board = [[None for j in range(dim[1])] for i in range(dim[0])]
+        self.state: list[list[Optional[int]]] = [[None for j in range(dim[1])] for i in range(dim[0])]
 
         for pid, piece in pieces.items():
             for i in range(piece.pos[0], piece.pos[0] + piece.dim[0]):
                 for j in range(piece.pos[1], piece.pos[1] + piece.dim[1]):
                     # Update board
-                    if self.board[i][j] is None or self.board[i][j] == pid:
-                        self.board[i][j] = pid
+                    if self.state[i][j] is None or self.state[i][j] == pid:
+                        self.state[i][j] = pid
                     else:
-                        raise ValueError(f"Piece conflict: both piece {self.board[i][j]} and piece {pid} are at {(i, j)}")
+                        raise ValueError(f"Piece conflict: both piece {self.state[i][j]} and piece {pid} are at {(i, j)}")
         
     def simple_print(self):
-        for i in range(len(self.board)):
-            for j in range(len(self.board[i])):
-                print(self.board[i][j] if self.board[i][j] is not None else 'X', end="")
+        for i in range(len(self.state)):
+            for j in range(len(self.state[i])):
+                print(self.state[i][j] if self.state[i][j] is not None else ' ', end="  ")
             print("\n", end="")
 
 
