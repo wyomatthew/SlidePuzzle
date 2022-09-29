@@ -9,7 +9,7 @@ default_pieces = {
     5: Piece((3, 1), (1, 1)),
     6: Piece((3, 2), (1, 1)),
     7: Piece((4, 1), (1, 1)),
-    8: Piece((4, 2), (1, 2)),
+    8: Piece((4, 2), (1, 1)),
     9: Piece((3, 3), (2, 1))
 }
 
@@ -24,7 +24,8 @@ class Board(object):
                     # Update board
                     if self.board[i][j] is None or self.board[i][j] == pid:
                         self.board[i][j] = pid
-                    raise ValueError(f"Piece conflict: both piece {self.board[i][j]} and piece {pid} are at {(i, j)}")
+                    else:
+                        raise ValueError(f"Piece conflict: both piece {self.board[i][j]} and piece {pid} are at {(i, j)}")
         
     def simple_print(self):
         for i in range(len(self.board)):
