@@ -1,6 +1,8 @@
 import numpy as np
 from Piece import Piece
 from typing import Optional
+from queue import PriorityQueue
+from itertools import count
 
 
 default_pieces = {
@@ -76,7 +78,7 @@ class Board(object):
             yield (start_row - 1, start_col)
 
         # Try moving down
-        if start_row < self.dim[0] - 1 and np.all(np.roll(self.state, -1, axis=0)[end_row - 1, start_col:end_col] == 0):
+        if end_row < self.dim[0] and np.all(np.roll(self.state, -1, axis=0)[end_row - 1, start_col:end_col] == 0):
             yield (start_row + 1, start_col)
         
         # Try moving left
@@ -84,7 +86,7 @@ class Board(object):
             yield (start_row, start_col - 1)
         
         # Try moving right
-        if start_col < self.dim[1] - 1 and np.all(np.roll(self.state, -1, axis=1)[start_row:end_row, end_col - 1] == 0):
+        if end_col < self.dim[1] and np.all(np.roll(self.state, -1, axis=1)[start_row:end_row, end_col - 1] == 0):
             yield (start_row, start_col + 1)
 
     def perform_move(self, pid: int, tgt: tuple[int, int]):
@@ -108,7 +110,7 @@ class Board(object):
     def copy(self):
         """Makes a deep copy of the board instance"""
         new_pieces = dict()
-        for pid, piece in self.pieces:
+        for pid, piece in self.pieces.items():
             new_pieces[pid] = Piece(piece.pos, piece.dim)
         
         return Board(self.dim, new_pieces, self.goal_piece, self.goal_pos)
@@ -126,6 +128,10 @@ class Board(object):
         """Returns whether or not the current board instance is solved."""
         return self.pieces[self.goal_piece].pos == self.goal_pos
     
+    def tuplize(self) -> tuple[tuple[int]]:
+        """Returns a tuple representation of the board state"""
+        return tuple([self.pieces[self.state[row,col]].dim if self.state[row,col] != 0 else 0 for row in range(self.dim[0]) for col in range(self.dim[1])])
+
     def get_goal_dist(self) -> int:
         """Returns the heuristic distance to the goal state from the current
         state."""
@@ -141,26 +147,61 @@ class Board(object):
     def solve(self) -> list[tuple[int, tuple[int, int]]]:
         """Returns a solution to the current puzzle in the form of a list of
         (pid, tgt) tuples."""
+        q = PriorityQueue()
+        cnt = count()
+        seen = set()
+
+        # Add root (priority, unique_counter, board, moves)
+        q.put((self.get_goal_dist(), next(cnt), self, list()))
+
+        while not q.empty():
+            tup = q.get()
+            board: Board = tup[2]
+            moves: list[tuple[int, tuple[int, int]]] = tup[3]
+            seen.add(board.tuplize())
+
+            # Check if we've found a goal state
+            # board.simple_print()
+            if board.is_solved():
+                return moves
+            
+            # Look at all children
+            for next_board, pid, move in board.get_successors():
+                # add child
+                if next_board.tuplize() not in seen:
+                    q.put((len(moves) + 1 + next_board.get_goal_dist(), next(cnt), next_board, moves + [(pid, move)]))
+        
+        return None
 
 
     def simple_print(self):
+        wid = 18
+        print("-" * wid)
         for i in range(len(self.state)):
+            print("|", end="")
             for j in range(len(self.state[i])):
-                print(f"{self.state[i, j]}" if self.state[i, j] > 0 else ' ', end="  ")
-            print("\n", end="")
+                print(f"{self.state[i, j]:2d}" if self.state[i, j] > 0 else '  ', end="  ")
+            print("|\n", end="")
+        print("-" * wid)
 
 
 if __name__ == "__main__":
     b = Board()
     b.simple_print()
-    piece = 4
-    print(f"Piece {piece} coords: {b.get_coords(piece)}")
+    # piece = 4
+    # print(f"Piece {piece} coords: {b.get_coords(piece)}")
 
-    print(list(b.get_piece_moves(piece)))
+    # print(list(b.get_piece_moves(piece)))
 
-    b.perform_move(4, (2, 0))
+    # b.perform_move(4, (2, 0))
 
-    b.simple_print()
-    print(b.pieces[piece])
+    # b.simple_print()
+    # print(b.pieces[piece])
 
-    print(b.get_goal_dist())
+    # print(b.get_goal_dist())
+    # print(b.tuplize())
+
+    print(f"Solving!")
+    sol = b.solve()
+    print(f"Solution got!\n{sol}")
+    
