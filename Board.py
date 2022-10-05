@@ -3,6 +3,7 @@ from Piece import Piece
 from typing import Optional
 from queue import PriorityQueue
 from itertools import count
+from time import perf_counter
 
 
 default_pieces = {
@@ -169,7 +170,7 @@ class Board(object):
             # board.simple_print()
             if board.is_solved():
                 # Trace back solution
-                print(f"Made it!")
+                print(f"Made it after looking at {len(p)} board states!")
                 out = list()
                 curr = brd_hash
                 while brd_hash in p.keys() and curr is not None:
@@ -268,9 +269,12 @@ class Board(object):
 if __name__ == "__main__":
     b = Board()
     print(f"Solving!")
+    t_0 = perf_counter()
     sol = b.solve()
+    print(f"Solved in {perf_counter() - t_0}s!")
     with open(f"sol.txt", "w") as fp:
         for bin_rep in sol:
             Board.print_int(bin_rep)
+            input()
             fp.write(f"{bin_rep}\n")
     
