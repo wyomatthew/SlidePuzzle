@@ -128,9 +128,9 @@ class Board(object):
         """Returns whether or not the current board instance is solved."""
         return self.pieces[self.goal_piece].pos == self.goal_pos
     
-    def tuplize(self) -> tuple[tuple[int]]:
-        """Returns a tuple representation of the board state"""
-        return tuple([self.pieces[self.state[row,col]].dim if self.state[row,col] != 0 else 0 for row in range(self.dim[0]) for col in range(self.dim[1])])
+    def hashable(self) -> int:
+        """Returns a hashable representation of the board state"""
+        return self.to_int()
 
     def get_goal_dist(self) -> int:
         """Returns the heuristic distance to the goal state from the current
@@ -149,30 +149,110 @@ class Board(object):
         (pid, tgt) tuples."""
         q = PriorityQueue()
         cnt = count()
-        seen = set()
+        p = dict()
 
-        # Add root (priority, unique_counter, board, moves)
-        q.put((self.get_goal_dist(), next(cnt), self, list()))
+        # Add root (priority, num_moves, unique_counter, board, parent)
+        q.put((self.get_goal_dist(), 0, next(cnt), self, None))
 
         while not q.empty():
             tup = q.get()
-            board: Board = tup[2]
-            moves: list[tuple[int, tuple[int, int]]] = tup[3]
-            seen.add(board.tuplize())
+            num_moves: int =  tup[1]
+            board: Board = tup[3]
+            parent: int = tup[4]
+            brd_hash = board.hashable()
+            if board.hashable() not in p.keys():
+                p[brd_hash] = parent
+            else:
+                continue
 
             # Check if we've found a goal state
             # board.simple_print()
             if board.is_solved():
-                return moves
+                # Trace back solution
+                print(f"Made it!")
+                out = list()
+                curr = brd_hash
+                while brd_hash in p.keys() and curr is not None:
+                    out.append(curr)
+                    curr = p[curr]
+                
+                return out[::-1]
             
             # Look at all children
             for next_board, pid, move in board.get_successors():
                 # add child
-                if next_board.tuplize() not in seen:
-                    q.put((len(moves) + 1 + next_board.get_goal_dist(), next(cnt), next_board, moves + [(pid, move)]))
+                if next_board.hashable() not in p.keys():
+                    q.put((num_moves + 1 + next_board.get_goal_dist(), num_moves, next(cnt), next_board, brd_hash))
         
         return None
 
+    def to_int(self) -> int:
+        """Returns representation of current board state as 64 bit integer. Each
+        square on the board is given 2 bits encoded as the following:
+        0 = empty (00)
+        1 = small square (01)
+        2 = vertical rectangle (10)
+        3 = horizontal rectangle (11)
+        4 = big square"""
+        bit_str = np.zeros(self.dim[0] * self.dim[1] * 3, int)
+
+        for i in range(self.dim[0]):
+            for j in range(self.dim[1]):
+                # Get range of indices
+                lo = (i * self.dim[1] + j) * 3
+                hi = lo + 3
+
+                piece_dim = self.pieces.get(self.state[i, j], None)
+                if piece_dim is not None:
+                    piece_dim = piece_dim.dim
+                
+                if piece_dim is None:
+                    bit_str[lo:hi] = 0
+                elif piece_dim == (1, 1):
+                    bit_str[lo:hi] = (0, 0, 1)
+                elif piece_dim == (2, 1):
+                    bit_str[lo:hi] = (0, 1, 0)
+                elif piece_dim == (1, 2):
+                    bit_str[lo:hi] = (0, 1, 1)
+                elif piece_dim ==  (2, 2):
+                    bit_str[lo:hi] = (1, 0, 0)
+                else:
+                    raise ValueError(f"Found piece with illegal dimensions: {piece_dim}")
+        
+        return int(bit_str.dot(2**np.arange(bit_str.size)[::-1]))
+
+    @staticmethod
+    def print_int(rep: int, str_len: int = 60, bits_per_piece: int = 3):
+        """Given an integer representation of the board, prints out the board
+        state.
+        
+        Parameters
+        ----------
+        rep: int
+            Integer encoding binary representation of board
+        str_len: int
+            Length of binary string encoding
+        bits_per_piece: int
+            Number of bits each piece gets"""
+        bin_str = (bin(rep)[2:]).zfill(str_len)[::-1]
+        for i in range(0, len(bin_str), bits_per_piece):
+            if i // bits_per_piece % 4 == 0:
+                print('\n', end="")
+
+            curr_str = bin_str[i:i + bits_per_piece]
+            if curr_str == '000':
+                print('  ', end="")
+            elif curr_str == '001':
+                print('O ', end="")
+            elif curr_str == '010':
+                print('| ', end="")
+            elif curr_str == '110':
+                print('= ', end="")
+            elif curr_str == '100':
+                print('o ', end="")
+            else:
+                print('  ', end="")
+        print('\n')
 
     def simple_print(self):
         wid = 18
@@ -187,21 +267,10 @@ class Board(object):
 
 if __name__ == "__main__":
     b = Board()
-    b.simple_print()
-    # piece = 4
-    # print(f"Piece {piece} coords: {b.get_coords(piece)}")
-
-    # print(list(b.get_piece_moves(piece)))
-
-    # b.perform_move(4, (2, 0))
-
-    # b.simple_print()
-    # print(b.pieces[piece])
-
-    # print(b.get_goal_dist())
-    # print(b.tuplize())
-
     print(f"Solving!")
     sol = b.solve()
-    print(f"Solution got!\n{sol}")
+    with open(f"sol.txt", "w") as fp:
+        for bin_rep in sol:
+            Board.print_int(bin_rep)
+            fp.write(f"{bin_rep}\n")
     
