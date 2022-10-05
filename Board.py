@@ -241,17 +241,17 @@ class Board(object):
 
             curr_str = bin_str[i:i + bits_per_piece]
             if curr_str == '000':
-                print('  ', end="")
+                print('   ', end="")
             elif curr_str == '001':
-                print('O ', end="")
+                print('[] ', end="")
             elif curr_str == '010':
-                print('| ', end="")
+                print('|| ', end="")
             elif curr_str == '110':
-                print('= ', end="")
+                print('== ', end="")
             elif curr_str == '100':
-                print('o ', end="")
+                print('<> ', end="")
             else:
-                print('  ', end="")
+                print('   ', end="")
         print('\n')
 
     def simple_print(self):
