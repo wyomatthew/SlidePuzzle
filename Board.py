@@ -231,7 +231,6 @@ class Board(object):
                 continue
 
             # Check if we've found a goal state
-            # board.simple_print()
             if board.is_solved():
                 # Trace back solution
                 out = list()
@@ -247,7 +246,7 @@ class Board(object):
             for next_board, pid, move in board.get_successors():
                 # add child
                 if next_board.hashable() not in p.keys():
-                    q.put((num_moves + 1 + next_board.get_goal_dist(), num_moves, next(cnt), next_board, brd_hash))
+                    q.put((num_moves + 1 + next_board.get_goal_dist(), num_moves + 1, next(cnt), next_board, brd_hash))
         
         return (sol, len(p), perf_counter() - start_t)
 
