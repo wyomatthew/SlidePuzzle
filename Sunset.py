@@ -2,10 +2,6 @@ import click
 from typing import Optional
 from Board import Board, int_to_board
 
-@click.command()
-def hello():
-    click.echo(click.style("Hello world!", fg=(255, 0, 0), blink=True))
-
 move_map = {
     'w': (-1, 0),
     'a': (0, -1),
