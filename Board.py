@@ -286,39 +286,6 @@ class Board(object):
         
         return int(bit_str.dot(2**np.arange(bit_str.size)[::-1]))
 
-    @staticmethod
-    def print_int(rep: int, str_len: int = 60, bits_per_piece: int = 3):
-        """Given an integer representation of the board, prints out the board
-        state.
-        
-        Parameters
-        ----------
-        rep: int
-            Integer encoding binary representation of board
-        str_len: int
-            Length of binary string encoding
-        bits_per_piece: int
-            Number of bits each piece gets"""
-        bin_str = (bin(rep)[2:]).zfill(str_len)[::-1]
-        for i in range(0, len(bin_str), bits_per_piece):
-            if i // bits_per_piece % 4 == 0:
-                print('\n', end="")
-
-            curr_str = bin_str[i:i + bits_per_piece]
-            if curr_str == '000':
-                print('   ', end="")
-            elif curr_str == '001':
-                print('[] ', end="")
-            elif curr_str == '010':
-                print('|| ', end="")
-            elif curr_str == '110':
-                print('== ', end="")
-            elif curr_str == '100':
-                print('<> ', end="")
-            else:
-                print('   ', end="")
-        print('\n')
-
     def simple_print(self):
         wid = 18
         print("-" * wid)
