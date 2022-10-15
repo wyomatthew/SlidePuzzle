@@ -1,5 +1,5 @@
-import numpy as np
-from Piece import Piece
+import numpy as np, click
+from Piece import Piece, X_UNIT, Y_UNIT
 from typing import Optional
 from queue import PriorityQueue
 from itertools import count
@@ -7,16 +7,16 @@ from time import perf_counter
 
 
 default_pieces = {
-    1: Piece((0, 1), (2, 2)),
-    2: Piece((0, 0), (2, 1)),
-    3: Piece((0, 3), (2, 1)),
-    4: Piece((2, 1), (1, 2)),
-    5: Piece((3, 0), (2, 1)),
-    6: Piece((3, 1), (1, 1)),
-    7: Piece((3, 2), (1, 1)),
-    8: Piece((4, 1), (1, 1)),
-    9: Piece((4, 2), (1, 1)),
-    10: Piece((3, 3), (2, 1))
+    1: Piece((0, 1), (2, 2), 1),
+    2: Piece((0, 0), (2, 1), 2),
+    3: Piece((0, 3), (2, 1), 3),
+    4: Piece((2, 1), (1, 2), 4),
+    5: Piece((3, 0), (2, 1), 5),
+    6: Piece((3, 1), (1, 1), 6),
+    7: Piece((3, 2), (1, 1), 7),
+    8: Piece((4, 1), (1, 1), 8),
+    9: Piece((4, 2), (1, 1), 9),
+    10: Piece((3, 3), (2, 1), 10)
 }
 
 class Board(object):
@@ -265,16 +265,40 @@ class Board(object):
             print("|\n", end="")
         print("-" * wid)
 
+    def click_print(self):
+        click.clear()
+        for board_row in range(self.dim[0]):
+            # Print current line
+            for term_row in range(Y_UNIT):
+                # Current line of the current row
+                board_col = 0
+                while board_col < self.dim[1]:
+                    if self.state[board_row, board_col] > 0:
+                        piece = self.pieces[self.state[board_row, board_col]]
+                        line_num = (board_row - piece.pos[0]) * Y_UNIT + term_row
+
+                        click.echo(click.style(piece.str_list[line_num], fg=piece.col), nl=False)
+                        board_col += piece.dim[1]
+                    else:
+                        # No piece, print out spaces
+                        click.echo(" " * X_UNIT, nl=False)
+                        board_col += 1
+                print("\n", end="")
+
 
 if __name__ == "__main__":
     b = Board()
-    print(f"Solving!")
-    t_0 = perf_counter()
-    sol = b.solve()
-    print(f"Solved in {perf_counter() - t_0}s!")
-    with open(f"sol.txt", "w") as fp:
-        for bin_rep in sol:
-            Board.print_int(bin_rep)
-            input()
-            fp.write(f"{bin_rep}\n")
+    b.click_print()
+    input()
+    b.perform_move(2, (1, 0))
+    b.click_print()
+    # print(f"Solving!")
+    # t_0 = perf_counter()
+    # sol = b.solve()
+    # print(f"Solved in {perf_counter() - t_0}s!")
+    # with open(f"sol.txt", "w") as fp:
+    #     for bin_rep in sol:
+    #         Board.print_int(bin_rep)
+    #         input()
+    #         fp.write(f"{bin_rep}\n")
     
