@@ -76,8 +76,3 @@ class Piece(object):
             self.str_list.append(line_str)
         
         self.term_dim = (len(self.str_list), len(self.str_list[0]))
-
-if __name__ == '__main__':
-    for dim in [(1, 1), (2, 1), (1, 2), (2, 2)]:
-        print(f"Checking {dim}:")
-        Piece((0, 0), dim)

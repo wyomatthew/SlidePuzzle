@@ -325,21 +325,3 @@ class Board(object):
                         board_col += 1
                 print("\n", end="")
         print("\n", end="")
-
-
-if __name__ == "__main__":
-    b = Board()
-    b.click_print()
-    input()
-    b.perform_move(2, (1, 0))
-    b.click_print()
-    # print(f"Solving!")
-    # t_0 = perf_counter()
-    # sol = b.solve()
-    # print(f"Solved in {perf_counter() - t_0}s!")
-    # with open(f"sol.txt", "w") as fp:
-    #     for bin_rep in sol:
-    #         Board.print_int(bin_rep)
-    #         input()
-    #         fp.write(f"{bin_rep}\n")
-    
