@@ -4,9 +4,13 @@ from typing import Optional
 from queue import PriorityQueue
 from itertools import count
 from time import perf_counter
+from itertools import count
 
+DEFAULT_DIM = (5, 4) # Default board dimensions
+GOAL_DIM = (2, 2) # Dimensions of goal piece
+GOAL_POS = (3, 1) # Position that goal piece must be moved to
 
-default_pieces = {
+DEFAULT_PIECES = {
     1: Piece((0, 1), (2, 2), 1),
     2: Piece((0, 0), (2, 1), 2),
     3: Piece((0, 3), (2, 1), 3),
@@ -17,6 +21,13 @@ default_pieces = {
     8: Piece((4, 1), (1, 1), 8),
     9: Piece((4, 2), (1, 1), 9),
     10: Piece((3, 3), (2, 1), 10)
+}
+
+dim_map = { # Mapping from binary representation of a piece to piece dimensions
+    "001": (2, 2),
+    "010": (2, 1),
+    "110": (1, 2),
+    "100": (1, 1),
 }
 
 def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
@@ -30,32 +41,50 @@ def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
         Length of binary string representation
     bits_per_piece: int
         Number of bits assigned to each piece"""
+    # Parse int to binary string
     bin_str = (bin(rep)[2:]).zfill(str_len)[::-1]
-    raise NotImplementedError()
-    # for i in range(0, len(bin_str), bits_per_piece):
-    #     if i // bits_per_piece % 4 == 0:
-    #         print('\n', end="")
+    
+    # Initialize outputs
+    pieces = dict()
+    goal_piece = None
+    
+    finished_cells: set[tuple[int, int]] = set() # List of cells that are marked occupied
+    pid_counter = count(firstval = 1)
+    board_row = 0
+    board_col = 0
+    for i in range(0, len(bin_str), bits_per_piece):
+        if i // bits_per_piece % 4 == 0:
+            board_row += 1
+            board_col = 0
 
-    #     curr_str = bin_str[i:i + bits_per_piece]
-    #     if curr_str == '000':
-    #         print('   ', end="")
-    #     elif curr_str == '001':
-    #         print('[] ', end="")
-    #     elif curr_str == '010':
-    #         print('|| ', end="")
-    #     elif curr_str == '110':
-    #         print('== ', end="")
-    #     elif curr_str == '100':
-    #         print('<> ', end="")
-    #     else:
-    #         print('   ', end="")
-    # print('\n')
+        if (board_row, board_col) not in finished_cells:
+            curr_str = bin_str[i:i + bits_per_piece]
+            if curr_str != '000': # Check if cell is not empty
+                pid = next(pid_counter)
+                dim = dim_map.get(curr_str, None)
+
+                if dim is not None:
+                    pieces[pid] = Piece((board_row, board_col), dim)
+
+                    # Mark all occupied squares
+                    for i in range(board_row, board_row + dim[0]):
+                        for j in range(board_col, board_col + dim[1]):
+                            finished_cells.add((i, j))
+                
+                # Assign goal piece
+                if goal_piece is None and dim == GOAL_DIM:
+                    goal_piece = pid
+                else:
+                    raise ValueError(f"No piece dimensions correspoding to '{curr_str}'...")
+        board_col += 1
+
+    return Board(DEFAULT_DIM, pieces, goal_piece, GOAL_POS)
 
 class Board(object):
-    def __init__(self, dim: tuple[int, int] = (5, 4), 
-            pieces: dict[int, Piece] = default_pieces, 
+    def __init__(self, dim: tuple[int, int] = DEFAULT_DIM, 
+            pieces: dict[int, Piece] = DEFAULT_PIECES, 
             goal_piece: Optional[int] = 1, 
-            goal_pos: Optional[tuple[int, int]] = (3, 1)):
+            goal_pos: Optional[tuple[int, int]] = GOAL_POS):
         self.dim = dim
         self.state: list[list[Optional[int]]] = np.zeros(dim, dtype=int)
         self.pieces = pieces
@@ -177,9 +206,9 @@ class Board(object):
         goal_squares = self.state[start_row:end_row,start_col:end_col]
         return np.sum(np.abs(np.array(goal_piece.pos) - np.array((start_row, start_col)))) + np.count_nonzero(np.unique(goal_squares))
 
-    def solve(self) -> list[tuple[int, tuple[int, int]]]:
+    def solve(self) -> list[int]:
         """Returns a solution to the current puzzle in the form of a list of
-        (pid, tgt) tuples."""
+        integers representing board states."""
         q = PriorityQueue()
         cnt = count()
         p = dict()
@@ -202,7 +231,6 @@ class Board(object):
             # board.simple_print()
             if board.is_solved():
                 # Trace back solution
-                print(f"Made it after looking at {len(p)} board states!")
                 out = list()
                 curr = brd_hash
                 while brd_hash in p.keys() and curr is not None:
