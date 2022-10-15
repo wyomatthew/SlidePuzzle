@@ -50,7 +50,7 @@ def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
     
     finished_cells: set[tuple[int, int]] = set() # List of cells that are marked occupied
     pid_counter = count(1)
-    board_row = 0
+    board_row = -1
     board_col = 0
     for i in range(0, len(bin_str), bits_per_piece):
         if i // bits_per_piece % 4 == 0:
@@ -70,12 +70,12 @@ def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
                     for i in range(board_row, board_row + dim[0]):
                         for j in range(board_col, board_col + dim[1]):
                             finished_cells.add((i, j))
-                
+                else:
+                    raise ValueError(f"No piece dimensions correspoding to '{curr_str}'...")
+
                 # Assign goal piece
                 if goal_piece is None and dim == GOAL_DIM:
                     goal_piece = pid
-                else:
-                    raise ValueError(f"No piece dimensions correspoding to '{curr_str}'...")
         board_col += 1
 
     return Board(DEFAULT_DIM, pieces, goal_piece, GOAL_POS)

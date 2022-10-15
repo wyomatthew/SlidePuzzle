@@ -1,6 +1,6 @@
 import click
 from typing import Optional
-from Board import Board
+from Board import Board, int_to_board
 
 @click.command()
 def hello():
@@ -36,7 +36,8 @@ def take_user_move(b: Board) -> Optional[int]:
     b.perform_move(pid, new_pos)
     return pid
 
-if __name__ == '__main__':
+def handle_user_play():
+    """Handles the default behavior of allowing the user to play on the board."""
     # Generate board
     b = Board()
 
@@ -52,3 +53,32 @@ if __name__ == '__main__':
             last_pid = take_user_move(b)
         except ValueError as err:
             err_str = str(err)
+
+@click.command()
+@click.option("-s", "--solution", is_flag=True)
+def main(solution):
+    b = Board()
+    if solution:
+        # Solve problem
+        click.echo("Solving board...")
+        sol, num_boards, time = b.solve()
+        
+        if sol is not None:
+            click.echo(f"Managed to solve the puzzle in {time:.2f}s after looking at {num_boards} board states!")
+            view_sequence = click.confirm("Would you like to visualize the sequence of moves?")
+            if view_sequence:
+                for board_int in sol:
+                    curr_b = int_to_board(board_int)
+                    curr_b.click_print(clear=True)
+                    click.echo(f"Press 'q' to quit, spacebar to go to next: ", nl=False)
+                    print("", end='\n')
+                    char = click.getchar(True)
+                    if char == 'q':
+                        print("", end='n')
+                        break
+    else:
+        handle_user_play()
+
+
+if __name__ == "__main__":
+    main()
