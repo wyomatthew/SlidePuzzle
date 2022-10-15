@@ -58,7 +58,7 @@ def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
             board_col = 0
 
         if (board_row, board_col) not in finished_cells:
-            curr_str = bin_str[i:i + bits_per_piece]
+            curr_str = bin_str[i:i + bits_per_piece][::-1]
             if curr_str != '000': # Check if cell is not empty
                 pid = next(pid_counter)
                 dim = dim_map.get(curr_str, None)
@@ -305,6 +305,7 @@ class Board(object):
         if clear:
             click.clear()
 
+        out = list()
         for board_row in range(self.dim[0]):
             # Print current line
             for term_row in range(Y_UNIT):
@@ -315,11 +316,12 @@ class Board(object):
                         piece = self.pieces[self.state[board_row, board_col]]
                         line_num = (board_row - piece.pos[0]) * Y_UNIT + term_row
 
-                        click.echo(click.style(piece.str_list[line_num], fg=piece.col), nl=False)
+                        out.append(click.style(piece.str_list[line_num], fg=piece.col))
                         board_col += piece.dim[1]
                     else:
                         # No piece, print out spaces
-                        click.echo(" " * X_UNIT, nl=False)
+                        out.append(" " * X_UNIT)
                         board_col += 1
-                print("\n", end="")
-        print("\n", end="")
+                out.append("\n")
+        out.append("\n")
+        click.echo("".join(out))

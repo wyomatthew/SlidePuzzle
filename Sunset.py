@@ -70,8 +70,7 @@ def main(solution):
                 for board_int in sol:
                     curr_b = int_to_board(board_int)
                     curr_b.click_print(clear=True)
-                    click.echo(f"Press 'q' to quit, spacebar to go to next: ", nl=False)
-                    print("", end='\n')
+                    click.echo(f"Press 'q' to quit, spacebar to go to next: ", nl=True)
                     char = click.getchar(True)
                     if char == 'q':
                         print("\n", end="")
