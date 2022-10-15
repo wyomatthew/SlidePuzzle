@@ -297,7 +297,7 @@ class Board(object):
             print("|\n", end="")
         print("-" * wid)
 
-    def click_print(self, clear: bool = False)):
+    def click_print(self, clear: bool = False):
         """Prints the board state nicely using the click library.
         
         Parameters
@@ -324,6 +324,7 @@ class Board(object):
                         click.echo(" " * X_UNIT, nl=False)
                         board_col += 1
                 print("\n", end="")
+        print("\n", end="")
 
 
 if __name__ == "__main__":
