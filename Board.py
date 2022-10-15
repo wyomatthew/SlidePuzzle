@@ -206,12 +206,15 @@ class Board(object):
         goal_squares = self.state[start_row:end_row,start_col:end_col]
         return np.sum(np.abs(np.array(goal_piece.pos) - np.array((start_row, start_col)))) + np.count_nonzero(np.unique(goal_squares))
 
-    def solve(self) -> list[int]:
+    def solve(self) -> tuple[list[int], int, float]:
         """Returns a solution to the current puzzle in the form of a list of
-        integers representing board states."""
+        integers representing board states, an integer representing number of
+        board states visited, and float representing number of seconds elapsed."""
+        start_t = perf_counter()
         q = PriorityQueue()
         cnt = count()
         p = dict()
+        sol = None
 
         # Add root (priority, num_moves, unique_counter, board, parent)
         q.put((self.get_goal_dist(), 0, next(cnt), self, None))
@@ -237,7 +240,8 @@ class Board(object):
                     out.append(curr)
                     curr = p[curr]
                 
-                return out[::-1]
+                sol = out[::-1]
+                break
             
             # Look at all children
             for next_board, pid, move in board.get_successors():
@@ -245,7 +249,7 @@ class Board(object):
                 if next_board.hashable() not in p.keys():
                     q.put((num_moves + 1 + next_board.get_goal_dist(), num_moves, next(cnt), next_board, brd_hash))
         
-        return None
+        return (sol, len(p), perf_counter() - start_t)
 
     def to_int(self) -> int:
         """Returns representation of current board state as 64 bit integer. Each
