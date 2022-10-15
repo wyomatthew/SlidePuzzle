@@ -42,7 +42,7 @@ def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
     bits_per_piece: int
         Number of bits assigned to each piece"""
     # Parse int to binary string
-    bin_str = (bin(rep)[2:]).zfill(str_len)[::-1]
+    bin_str = (bin(rep)[2:]).zfill(str_len)[:]
     
     # Initialize outputs
     pieces = dict()
@@ -268,8 +268,7 @@ class Board(object):
                 hi = lo + 3
 
                 piece = self.pieces.get(self.state[i, j], None)
-                if piece is not None:
-                    piece_dim = piece.dim
+                piece_dim = piece.dim if piece is not None else None
                 
                 if piece_dim is None:
                     bit_str[lo:hi] = 0
