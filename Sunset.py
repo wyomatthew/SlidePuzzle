@@ -51,7 +51,8 @@ def handle_user_play():
             err_str = str(err)
 
 @click.command()
-@click.option("-s", "--solution", is_flag=True)
+@click.option("-s", "--solution", is_flag=True, help="Solves and offers \
+a walkthrough of the puzzle as opposed to allowing to play with it interactively")
 def main(solution):
     b = Board()
     if solution:
