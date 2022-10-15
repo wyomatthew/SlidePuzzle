@@ -49,7 +49,7 @@ def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
     goal_piece = None
     
     finished_cells: set[tuple[int, int]] = set() # List of cells that are marked occupied
-    pid_counter = count(firstval = 1)
+    pid_counter = count(1)
     board_row = 0
     board_col = 0
     for i in range(0, len(bin_str), bits_per_piece):
