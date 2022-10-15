@@ -74,7 +74,7 @@ def main(solution):
                     print("", end='\n')
                     char = click.getchar(True)
                     if char == 'q':
-                        print("", end='n')
+                        print("\n", end="")
                         break
     else:
         handle_user_play()
