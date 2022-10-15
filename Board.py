@@ -19,6 +19,38 @@ default_pieces = {
     10: Piece((3, 3), (2, 1), 10)
 }
 
+def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
+    """Returns the Board object represented by the input integer.
+    
+    Parameters
+    ----------
+    rep: int
+        Integer representation of board state to be generated
+    str_len: int
+        Length of binary string representation
+    bits_per_piece: int
+        Number of bits assigned to each piece"""
+    bin_str = (bin(rep)[2:]).zfill(str_len)[::-1]
+    raise NotImplementedError()
+    # for i in range(0, len(bin_str), bits_per_piece):
+    #     if i // bits_per_piece % 4 == 0:
+    #         print('\n', end="")
+
+    #     curr_str = bin_str[i:i + bits_per_piece]
+    #     if curr_str == '000':
+    #         print('   ', end="")
+    #     elif curr_str == '001':
+    #         print('[] ', end="")
+    #     elif curr_str == '010':
+    #         print('|| ', end="")
+    #     elif curr_str == '110':
+    #         print('== ', end="")
+    #     elif curr_str == '100':
+    #         print('<> ', end="")
+    #     else:
+    #         print('   ', end="")
+    # print('\n')
+
 class Board(object):
     def __init__(self, dim: tuple[int, int] = (5, 4), 
             pieces: dict[int, Piece] = default_pieces, 
