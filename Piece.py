@@ -41,6 +41,9 @@ str_map = {
 """
 }
 
+X_UNIT = 5 # Width of a (1 x 1) piece in characters
+Y_UNIT = 3 # Height of a (1 x 1) piece in characters
+
 @dataclass
 class Piece(object):
     pos: tuple[int, int]
@@ -50,7 +53,7 @@ class Piece(object):
     def __post_init__(self):
         if self.dim[0] < 1 or self.dim[1] < 1:
             raise ValueError(f"All dimensions must be at least 1, received {self.dim}")
-        self.col = color_map.get(self.pos, None)
+        self.col = color_map.get(self.dim, None)
         self.str_list = list()
 
         char_height = self.dim[0] * 3 # Height of print out of object
@@ -63,6 +66,8 @@ class Piece(object):
             else:
                 line_str = f"|{' ' * num_middle}|"
             self.str_list.append(line_str)
+        
+        self.term_dim = (len(self.str_list), len(self.str_list[0]))
 
 if __name__ == '__main__':
     for dim in [(1, 1), (2, 1), (1, 2), (2, 2)]:
