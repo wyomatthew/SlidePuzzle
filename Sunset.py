@@ -4,7 +4,7 @@ from Board import Board
 
 @click.command()
 def hello():
-    click.echo(click.style("Hello world!", (255, 0, 0), blink=True))
+    click.echo(click.style("Hello world!", fg=(255, 0, 0), blink=True))
 
 move_map = {
     'w': (-1, 0),
@@ -23,17 +23,17 @@ def take_user_move(b: Board) -> Optional[int]:
 
     # Get direction
     click.echo(f"Please enter a direction to move")
-    dir = click.getchar()
-    if dir not in move_map.keys():
-        raise ValueError(f"Movement direction must be one of {move_map.keys()}! Received {dir}")
-    diff = move_map[dir]
-    dir = (p.pos[0] + diff[0], p.pos[1] + diff[1])
+    dir_key = click.getchar()
+    if dir_key not in move_map.keys():
+        raise ValueError(f"Movement direction must be one of {set(move_map.keys())}! Received {dir_key}")
+    diff = move_map[dir_key]
+    new_pos = (p.pos[0] + diff[0], p.pos[1] + diff[1])
 
     # Get all legal moves
-    if (pid, dir) not in [(next_pid, next_dir) for _, next_pid, next_dir in b.get_successors()]:
-        raise ValueError(f"Movement is illegal! Received {pid} to {dir}")
+    if (pid, new_pos) not in [(next_pid, next_dir) for _, next_pid, next_dir in b.get_successors()]:
+        raise ValueError(f"Movement is illegal! Received {pid} to {new_pos}")
 
-    b.perform_move(pid, dir)
+    b.perform_move(pid, new_pos)
     return pid
 
 if __name__ == '__main__':
