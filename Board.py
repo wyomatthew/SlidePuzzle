@@ -254,11 +254,11 @@ class Board(object):
     def to_int(self) -> int:
         """Returns representation of current board state as 64 bit integer. Each
         square on the board is given 2 bits encoded as the following:
-        0 = empty (00)
-        1 = small square (01)
-        2 = vertical rectangle (10)
-        3 = horizontal rectangle (11)
-        4 = big square"""
+        0 = empty (000)
+        1 = small square (010)
+        2 = vertical rectangle (010)
+        3 = horizontal rectangle (011)
+        4 = big square (100)"""
         bit_str = np.zeros(self.dim[0] * self.dim[1] * 3, int)
 
         for i in range(self.dim[0]):
@@ -267,9 +267,9 @@ class Board(object):
                 lo = (i * self.dim[1] + j) * 3
                 hi = lo + 3
 
-                piece_dim = self.pieces.get(self.state[i, j], None)
-                if piece_dim is not None:
-                    piece_dim = piece_dim.dim
+                piece = self.pieces.get(self.state[i, j], None)
+                if piece is not None:
+                    piece_dim = piece.dim
                 
                 if piece_dim is None:
                     bit_str[lo:hi] = 0
