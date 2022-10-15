@@ -297,8 +297,16 @@ class Board(object):
             print("|\n", end="")
         print("-" * wid)
 
-    def click_print(self):
-        click.clear()
+    def click_print(self, clear: bool = False)):
+        """Prints the board state nicely using the click library.
+        
+        Parameters
+        ----------
+        clear: bool
+            If `True`, clears the terminal before printing"""
+        if clear:
+            click.clear()
+
         for board_row in range(self.dim[0]):
             # Print current line
             for term_row in range(Y_UNIT):
