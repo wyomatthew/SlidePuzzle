@@ -78,7 +78,7 @@ def solve_board(b: Board):
                     print("\n", end="")
                     break
                 elif char == 'u':
-                    handle_user_play(b)
+                    handle_user_play(int_to_board(board_int, assign_pids=True))
     else:
         click.echo("No solution could be found!")
     exit(0)
