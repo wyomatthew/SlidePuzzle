@@ -12,7 +12,7 @@ move_map = {
 def take_user_move(b: Board) -> Optional[int]:
     """Prompts user to make a move and performs it on the input board. Returns
     the pid of the piece moved if a move was successfully made."""
-    pid = click.prompt(f"Select a piece to move: ", type=int)
+    pid = click.prompt(f"Select a piece to move", type=int)
     if pid not in b.pieces.keys():
         raise ValueError(f"Piece must exist on the board! Received {pid}")
     p = b.pieces[pid]
@@ -61,7 +61,7 @@ def main(solution):
         sol, num_boards, time = b.solve()
         
         if sol is not None:
-            click.echo(f"Managed to find a length {len(sol)} to the puzzle in {time:.2f}s after looking at {num_boards} board states!")
+            click.echo(f"Managed to find a length {len(sol)} solution to the puzzle in {time:.2f}s after looking at {num_boards} board states!")
             view_sequence = click.confirm("Would you like to visualize the sequence of moves?")
             if view_sequence:
                 for board_int in sol:
