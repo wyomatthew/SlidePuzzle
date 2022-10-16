@@ -51,6 +51,7 @@ def handle_user_play(b: Board):
             last_pid = take_user_move(b)
         except ValueError as err:
             err_str = str(err)
+    b.click_print(clear=True)
     click.echo(click.style("Congratulations! You've solved it!", (0, 255, 0)))
     exit(0)
 
