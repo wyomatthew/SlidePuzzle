@@ -30,7 +30,7 @@ dim_map = { # Mapping from binary representation of a piece to piece dimensions
     "100": (1, 1),
 }
 
-def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
+def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3, assign_pids: bool = False):
     """Returns the Board object represented by the input integer.
     
     Parameters
@@ -40,7 +40,9 @@ def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
     str_len: int
         Length of binary string representation
     bits_per_piece: int
-        Number of bits assigned to each piece"""
+        Number of bits assigned to each piece
+    assign_pids: bool
+        If `True`, gives each piece in the resulting board the PID property"""
     # Parse int to binary string
     bin_str = (bin(rep)[2:]).zfill(str_len)[:]
     
@@ -64,7 +66,10 @@ def int_to_board(rep: int, str_len: int = 60, bits_per_piece: int = 3):
                 dim = dim_map.get(curr_str, None)
 
                 if dim is not None:
-                    pieces[pid] = Piece((board_row, board_col), dim)
+                    if assign_pids:
+                        pieces[pid] = Piece((board_row, board_col), dim, pid)
+                    else:
+                        pieces[pid] = Piece((board_row, board_col), dim)
 
                     # Mark all occupied squares
                     for i in range(board_row, board_row + dim[0]):
