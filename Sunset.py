@@ -61,7 +61,7 @@ def main(solution):
         sol, num_boards, time = b.solve()
         
         if sol is not None:
-            click.echo(f"Managed to solve the puzzle in {time:.2f}s after looking at {num_boards} board states!")
+            click.echo(f"Managed to find a length {len(sol)} to the puzzle in {time:.2f}s after looking at {num_boards} board states!")
             view_sequence = click.confirm("Would you like to visualize the sequence of moves?")
             if view_sequence:
                 for board_int in sol:
